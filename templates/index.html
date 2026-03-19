@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📚 AI BOOKSTORE - Hệ Thống Gợi Ý Thông Minh</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body { background: #f8f9fa; font-family: 'Inter', sans-serif; }
+        .navbar { box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 12px 0; }
+        .search-box { width: 450px; }
+        .book-card { transition: 0.3s; border: none; border-radius: 15px; overflow: hidden; background: #fff; height: 100%; }
+        .book-card:hover { transform: translateY(-10px); box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important; }
+        .price { color: #d32f2f; font-weight: 700; font-size: 1.1rem; }
+        .category-btn { border-radius: 25px; padding: 8px 22px; transition: 0.3s; font-weight: 600; }
+        .recommendation-section { background: linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%); border-radius: 25px; border-left: 10px solid #0d6efd; }
+        .img-container { height: 250px; overflow: hidden; background: #f1f1f1; position: relative; }
+        .img-container img { width: 100%; height: 100%; object-fit: contain; padding: 10px; }
+        
+        /* Hiệu ứng badge AI */
+        .ai-badge { position: absolute; top: 10px; right: 10px; background: rgba(13, 110, 253, 0.9); color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; z-index: 10; }
+        
+        /* Nút giỏ hàng nổi bật */
+        .cart-icon-btn { background: white !important; color: #0d6efd !important; border: 1px solid #0d6efd !important; font-weight: 600; }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-4" href="/">📚 AI BOOKSTORE</a>
+            <form class="d-flex mx-auto search-box" method="GET" action="/">
+                <input class="form-control me-2 rounded-pill px-4" name="keyword" type="search" placeholder="Tìm tên sách, tác giả hoặc lĩnh vực..." value="{{ request.args.get('keyword', '') }}">
+                <button class="btn btn-warning fw-bold rounded-pill px-4" type="submit">Tìm</button>
+            </form>
+            <div class="ms-auto d-flex align-items-center">
+                <a href="/giohang" class="btn cart-icon-btn me-3 position-relative shadow-sm rounded-pill">
+                    <i class="fas fa-shopping-cart"></i>
+                    {% if session.get('giohang') %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ session.get('giohang')|length }}</span>
+                    {% endif %}
+                </a>
+                {% if session.get('user_id') %}
+                    <span class="text-white me-2">Chào, {{ session.get('user_name') }}</span>
+                    <a href="/logout" class="btn btn-sm btn-outline-light rounded-pill">Thoát</a>
+                {% else %}
+                    <a href="/login" class="btn btn-outline-light rounded-pill px-3 me-2">Đăng nhập</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4 text-center">
+        <a href="/" class="btn category-btn {% if not request.args.get('danh_muc') %}btn-primary{% else %}btn-outline-primary{% endif %} shadow-sm me-2">Tất cả</a>
+        {% for c in categories %}
+        <a href="/?danh_muc={{c.ma_danh_muc}}" class="btn category-btn {% if request.args.get('danh_muc')|string == c.ma_danh_muc|string %}btn-primary{% else %}btn-outline-primary{% endif %} shadow-sm me-2">
+            {{c.ten_danh_muc}}
+        </a>
+        {% endfor %}
+    </div>
+
+    {% if recommended_books %}
+    <div class="container mt-5">
+        <div class="recommendation-section p-4 shadow-sm">
+            <h3 class="text-primary fw-bold"><i class="fas fa-microchip me-2"></i> Hệ Thống Gợi Ý (Content-based AI)</h3>
+            <p class="text-muted mb-4 small"><i class="fas fa-info-circle"></i> Sử dụng Cosine Similarity để tính toán độ tương đồng Vector nội dung.</p>
+            <div class="row">
+                {% for book in recommended_books %}
+                <div class="col-md-3 mb-4">
+                    <div class="card book-card border-0 shadow-sm">
+                        <div class="img-container">
+                            <div class="ai-badge"><i class="fas fa-brain"></i> AI Match: 98%</div>
+                            <img src="{{ url_for('static', filename='images/' + (book.hinh_anh if book.hinh_anh else 'noimage.jpg')) }}">
+                        </div>
+                        <div class="card-body text-center p-3">
+                            <h6 class="fw-bold text-truncate">{{book.ten_sach}}</h6>
+                            <p class="price mb-2">{{ "{:,.0f}".format(book.gia) }} VND</p>
+                            <a href="/chitiet/{{book.ma_sach}}" class="btn btn-sm btn-primary w-100 rounded-pill">Xem ngay</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="container mt-5 mb-5">
+        <h3 class="mb-4 fw-bold text-dark"><i class="fas fa-book-open me-2"></i>Khám phá tủ sách</h3>
+        <div class="row">
+            {% for book in books %}
+            <div class="col-md-3 mb-4">
+                <div class="card book-card shadow-sm">
+                    <div class="img-container">
+                        <img src="{{ url_for('static', filename='images/' + (book.hinh_anh if book.hinh_anh else 'noimage.jpg')) }}">
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="fw-bold text-truncate">{{book.ten_sach}}</h5>
+                        <div class="d-flex justify-content-between mb-2 small px-2 text-muted">
+                            <span>Bán: {{book.so_luong_da_ban if book.so_luong_da_ban else 0}}</span>
+                            <span>Kho: {{book.so_luong_ton if book.so_luong_ton else 10}}</span>
+                        </div>
+                        <p class="price mb-3">{{ "{:,.0f}".format(book.gia) }} VND</p>
+                        <div class="d-flex gap-2">
+                            <a href="/chitiet/{{book.ma_sach}}" class="btn btn-outline-primary btn-sm flex-fill rounded-pill">Chi tiết</a>
+                            <a href="/them_gio/{{book.ma_sach}}" class="btn btn-success btn-sm flex-fill rounded-pill shadow-sm"><i class="fas fa-cart-plus"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

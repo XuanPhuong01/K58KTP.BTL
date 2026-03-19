@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+<title>Lịch sử mua hàng</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f2f2f2;
+}
+
+table{
+width:80%;
+margin:auto;
+background:white;
+border-collapse:collapse;
+}
+
+th,td{
+padding:10px;
+border:1px solid #ddd;
+text-align:center;
+}
+
+th{
+background:#3498db;
+color:white;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2 style="text-align:center">Lịch sử mua sách</h2>
+
+<table>
+
+<tr>
+<th>Mã đơn</th>
+<th>Ngày mua</th>
+<th>Tổng tiền</th>
+</tr>
+
+{% for o in orders %}
+
+<tr>
+
+<td>{{o.ma_don_hang}}</td>
+<td>{{o.ngay_dat}}</td>
+<td>{{o.tong_tien}}</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+</body>
+</html>

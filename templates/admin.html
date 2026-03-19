@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Quản trị - Bookstore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .admin-sidebar { min-height: 100vh; background: #212529; color: white; }
+        .main-content { background: #f8f9fa; min-height: 100vh; padding: 20px; }
+        .card { border: none; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .table img { width: 50px; height: 70px; object-fit: cover; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2 admin-sidebar p-3 d-none d-md-block">
+            <h4 class="text-center mb-4 text-warning">ADMIN CP</h4>
+            <hr>
+            <ul class="nav flex-column">
+                <li class="nav-item mb-2">
+                    <a href="/admin" class="nav-link text-white active"><i class="fas fa-book me-2"></i> Quản lý sách</a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a href="/" class="nav-link text-white"><i class="fas fa-home me-2"></i> Xem Trang chủ</a>
+                </li>
+                <li class="nav-item mt-4">
+                    <a href="/logout" class="nav-link text-danger"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-md-10 main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold">Danh sách sản phẩm</h2>
+                <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#addBookModal">
+                    <i class="fas fa-plus me-2"></i> Thêm sách mới
+                </button>
+            </div>
+
+            <div class="card p-3">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Ảnh</th>
+                            <th>Tên sách</th>
+                            <th>Giá</th>
+                            <th>Danh mục</th>
+                            <th class="text-center">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in books %}
+                        <tr>
+                            <td><img src="/static/images/{{ s.hinh_anh }}" alt="book"></td>
+                            <td>
+                                <div class="fw-bold">{{ s.ten_sach }}</div>
+                                <small class="text-muted">Mã: #{{ s.ma_sach }}</small>
+                            </td>
+                            <td class="text-primary fw-bold">{{ "{:,.0f}".format(s.gia) }} đ</td>
+                            <td><span class="badge bg-info text-dark">{{ s.ten_danh_muc }}</span></td>
+                            <td class="text-center">
+                                <a href="/admin/xoa-sach/{{ s.ma_sach }}" 
+                                   class="btn btn-outline-danger btn-sm rounded-pill px-3"
+                                   onclick="return confirm('Bạn có chắc chắn muốn xóa cuốn sách này?')">
+                                    <i class="fas fa-trash-alt me-1"></i> Xóa
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addBookModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Thêm sách mới vào kho</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/admin/them-sach" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tên sách</label>
+                        <input type="text" name="ten_sach" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Giá bán</label>
+                        <input type="number" name="gia" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mã danh mục (1: Kinh tế, 2: Văn học...)</label>
+                        <input type="number" name="ma_danh_muc" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tên file hình ảnh (ví dụ: s1.jpg)</label>
+                        <input type="text" name="hinh_anh" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu sản phẩm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

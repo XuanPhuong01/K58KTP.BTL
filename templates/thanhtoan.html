@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán đơn hàng - Bookstore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #f4f7f6; font-family: 'Inter', sans-serif; }
+        .checkout-card { border: none; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        .form-label { font-weight: 600; font-size: 0.9rem; color: #444; }
+        .order-summary { background: #fff; border-radius: 15px; position: sticky; top: 20px; }
+        .payment-method-card {
+            border: 2px solid #eee;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .payment-method-card:hover { border-color: #0d6efd; background: #f8fbff; }
+        .form-check-input:checked + .payment-method-card { border-color: #0d6efd; background: #f8fbff; }
+    </style>
+</head>
+<body>
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card checkout-card p-4 mb-4">
+                <h4 class="mb-4 fw-bold"><i class="fas fa-truck me-2 text-primary"></i>Thông tin giao hàng</h4>
+                <form action="/xac-nhan-don-hang" method="POST">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Họ và tên người nhận</label>
+                            <input type="text" class="form-control" name="ho_ten" value="{{ session.get('user_name', '') }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Số điện thoại</label>
+                            <input type="tel" class="form-control" name="sdt" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" placeholder="để nhận thông báo đơn hàng">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Địa chỉ nhận hàng</label>
+                            <textarea class="form-control" name="dia_chi" rows="3" placeholder="Số nhà, tên đường, phường/xã..." required></textarea>
+                        </div>
+                    </div>
+
+                    <h4 class="mt-5 mb-4 fw-bold"><i class="fas fa-credit-card me-2 text-primary"></i>Phương thức thanh toán</h4>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <input type="radio" class="btn-check" name="payment" id="cod" checked>
+                            <label class="payment-method-card d-block w-100" for="cod">
+                                <i class="fas fa-money-bill-wave text-success mb-2 fs-4"></i>
+                                <div class="fw-bold">Thanh toán khi nhận hàng (COD)</div>
+                                <small class="text-muted">Trả tiền khi shipper giao hàng</small>
+                            </label>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="radio" class="btn-check" name="payment" id="bank">
+                            <label class="payment-method-card d-block w-100" for="bank">
+                                <i class="fas fa-university text-primary mb-2 fs-4"></i>
+                                <div class="fw-bold">Chuyển khoản ngân hàng</div>
+                                <small class="text-muted">Quét mã QR hoặc chuyển khoản</small>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100 mt-5 py-3 fw-bold rounded-pill">
+                        XÁC NHẬN ĐẶT HÀNG
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="order-summary p-4 shadow-sm">
+                <h5 class="fw-bold mb-4">Đơn hàng của bạn</h5>
+                <div class="cart-items-mini mb-4" style="max-height: 300px; overflow-y: auto;">
+                    {% if session.get('giohang') %}
+                        <p class="text-muted">Bạn có <strong>{{ session['giohang']|length }}</strong> loại sách trong giỏ hàng.</p>
+                    {% endif %}
+                </div>
+                
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Tạm tính</span>
+                    <span class="fw-bold">{{ "{:,.0f}".format(tong_tien) }} VND</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Phí vận chuyển</span>
+                    <span class="text-success fw-bold">Miễn phí</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="fs-5 fw-bold">Tổng thanh toán</span>
+                    <span class="fs-4 fw-bold text-danger">{{ "{:,.0f}".format(tong_tien) }} VND</span>
+                </div>
+                
+                <div class="alert alert-info border-0 small">
+                    <i class="fas fa-shield-alt me-2"></i> Thông tin cá nhân của bạn sẽ được bảo mật tuyệt đối theo tiêu chuẩn của Bookstore.
+                </div>
+                <a href="/giohang" class="btn btn-link btn-sm text-decoration-none w-100 text-center text-muted">
+                    <i class="fas fa-edit me-1"></i> Quay lại sửa giỏ hàng
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

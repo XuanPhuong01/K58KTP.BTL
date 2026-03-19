@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý đơn hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/admin">ADMIN PANEL</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/admin"><i class="fas fa-book"></i> Quản lý sách</a>
+                <a class="nav-link active" href="/admin/don-hang"><i class="fas fa-file-invoice-dollar"></i> Đơn hàng</a>
+                <a class="nav-link" href="/"><i class="fas fa-home"></i> Xem Shop</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2 class="mb-4 fw-bold text-uppercase"><i class="fas fa-shopping-cart text-primary"></i> Danh sách đơn hàng</h2>
+        
+        <div class="card shadow border-0">
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-primary text-white">
+                        <tr>
+                            <th class="ps-3">Mã đơn</th>
+                            <th>Khách hàng</th>
+                            <th>Ngày đặt</th>
+                            <th>Tổng tiền</th>
+                            <th>Địa chỉ & SĐT</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for o in orders %}
+                        <tr>
+                            <td class="ps-3 fw-bold">#{{ o.ma_don_hang }}</td>
+                            <td>{{ o.ho_ten }}</td>
+                            <td>{{ o.ngay_dat.strftime('%d/%m/%Y %H:%M') if o.ngay_dat else 'N/A' }}</td>
+                            <td class="text-danger fw-bold">
+                                {{ "{:,.0f}".format(o.tong_tien) if o.tong_tien else '0' }} đ
+                            </td>
+                            <td>
+                                <small>
+                                    <i class="fas fa-map-marker-alt text-muted"></i> {{ o.dia_chi_giao if o.dia_chi_giao else 'Chưa nhập' }}<br>
+                                    <i class="fas fa-phone text-muted"></i> {{ o.so_dien_thoai if o.so_dien_thoai else 'Chưa nhập' }}
+                                </small>
+                            </td>
+                            <td>
+                                <span class="badge {% if o.trang_thai == 'Chờ xử lý' %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                                    {{ o.trang_thai }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">Chưa có đơn hàng nào.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
