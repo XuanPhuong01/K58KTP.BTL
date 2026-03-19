@@ -1,0 +1,35 @@
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+# 1. Du lieu mau de demo thuat toan AI
+data = {
+    'ma_sach': [1, 2, 3, 4],
+    'ten_sach': ['Dac Nhan Tam', 'Nha Gia Kim', 'Lap trinh Python', 'AI cho moi nguoi'],
+    'ten_danh_muc': ['Ky nang song', 'Van hoc', 'Cong nghe', 'Cong nghe']
+}
+df = pd.DataFrame(data)
+
+# 2. Ham huan luyen he thong goi y (Content-based Filtering)
+def train_recommendation_system(books_df):
+    # Ket hop cac dac trung de vector hoa
+    books_df['content'] = books_df['ten_sach'] + " " + books_df['ten_danh_muc']
+    
+    # Su dung TF-IDF de tinh toan trong so tu vung
+    tfidf = TfidfVectorizer(stop_words='english')
+    tfidf_matrix = tfidf.fit_transform(books_df['content'])
+    
+    # Tinh toan Ma tran tuong dong Cosine (Cosine Similarity Matrix)
+    cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
+    return cosine_sim
+
+# Chay thu nghiem
+sim_matrix = train_recommendation_system(df)
+
+print("-" * 30)
+print("SUCCESS: AI Model trained successfully!")
+print("Algorithm: Content-based Filtering using Cosine Similarity")
+print("-" * 30)
+print("Ma tran tuong dong (Sample):")
+print(sim_matrix.round(2))
+print("-" * 30)
